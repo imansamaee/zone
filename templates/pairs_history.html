@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <div class="container">
+    <h1>Trading Bot - Pairs History</h1>
+    <ul id="pairs-list" class="list-group"></ul>
+
+    <script>
+      async function displayPairs() {
+        try {
+          const response = await fetch('/pairs_history');
+          const files = await response.json();
+
+          const pairsList = document.getElementById('pairs-list');
+          pairsList.innerHTML = '';
+
+          files.forEach(file => {
+            const listItem = document.createElement('li');
+            listItem.classList.add('list-group-item');
+
+            const link = document.createElement('a');
+            link.href = `/chart?file=${file}`;  // Link to /chart with filename
+            link.textContent = file;
+            link.classList.add('btn', 'btn-primary');
+            listItem.appendChild(link);
+            pairsList.appendChild(listItem);
+          });
+        } catch (error) {
+          console.error('Error fetching pairs:', error);
+        }
+      }
+
+      displayPairs();
+    </script>
+  </div>
+</body>
+</html>

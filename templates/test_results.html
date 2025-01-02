@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Crypto Test Results{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2>Crypto Test Results</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Symbol</th>
+        <th>Trend Test</th>
+        <th>Support/Resistance Test</th>
+        <th>Range Test</th>
+        <th>Volatility Test</th>
+        <th>Open Orders Test</th>
+        <th>SR Gap Test</th>
+        <th>Link</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for crypto in cryptos %} 
+      <tr>
+        <td><a href='/cryptos/{{ crypto.symbol }}'>{{ crypto.symbol }}</a></td>
+<td>{{ ('&#10003;' if crypto.test_results.get('test_trend') == 'passed' else '<span style=color: red; font-weight: bold;>&#10007;</span>') | safe }}</td>
+<td>{{ ('&#10003;' if crypto.test_results.get('test_support_resistance') == 'passed' else '<span style=color: red; font-weight: bold;>&#10007;</span>') | safe }}</td>
+<td>{{ ('&#10003;' if crypto.test_results.get('test_range') == 'passed' else '<span style=color: red; font-weight: bold;>&#10007;</span>') | safe }}</td>
+<td>{{ ('&#10003;' if crypto.test_results.get('test_volatility') == 'passed' else '<span style=color: red; font-weight: bold;>&#10007;</span>') | safe }}</td>
+<td>{{ ('&#10003;' if crypto.test_results.get('test_active_orders') == 'passed' else '<span style=color: red; font-weight: bold;>&#10007;</span>') | safe }}</td>
+<td>{{ ('&#10003;' if crypto.test_results.get('test_sr_gap_pct') == 'passed' else '<span style=color: red; font-weight: bold;>&#10007;</span>') | safe }}</td>        
+<td>
+          <a href='https://www.binance.com/en/trade/{{ crypto.symbol.replace('USDT', '_USDT') }}?type=spot' target='_blank'>Binance</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Crypto Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2>Crypto Dashboard</h2>
+  <hr>
+  <h4>Bot Commands</h4>
+
+  <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+    <button type="button" class="btn btn-success me-md-2" onclick="runBackend('/start_bot','POST', 'Bot start initiated!')">Start Bot</button>
+    <button type="button" class="btn btn-danger me-md-2" onclick="runBackend('/stop_bot','POST', 'Bot stop initiated!')">Stop Bot</button>
+  </div>
+  <hr>
+  <h4>Order Commands</h4>
+
+  <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+    <button type="button" class="btn btn-success me-md-2" onclick="runBackend('/convert_assets', 'GET', 'All asset converted to USDT!')">Convert Assets to USDT</button> 
+    <button type="button" class="btn btn-danger me-md-2" onclick="runBackend('/stop_bot', 'POST', 'Bot stop initiated!')">Stop Bot</button>
+  </div>
+
+{% endblock %}

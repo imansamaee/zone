@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Update AppConfig</title>
+</head>
+<body>
+  <h1>Update AppConfig</h1>
+  <form id="configForm">
+    <div>
+      <label for="var_name">Variable Name:</label>
+      <input type="text" id="var_name" name="var_name" required>
+    </div>
+    <div>
+      <label for="var_value">Variable Value:</label>
+      <input type="text" id="var_value" name="var_value" required>
+    </div>
+    <button type="submit">Submit</button>
+  </form>
+
+  <script>
+    document.getElementById('configForm').addEventListener('submit', function(event) {
+      event.preventDefault(); // Prevent default form submission
+
+      var varName = document.getElementById('var_name').value;
+      var varValue = document.getElementById('var_value').value;
+
+      // Send POST request to update config
+      fetch('/update_config', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ var_name: varName, var_value: varValue })
+      })
+      .then(response => response.json())
+      .then(data => alert(data.message))
+      .catch(error => alert('Error updating config'));
+    });
+  </script>
+</body>
+</html>

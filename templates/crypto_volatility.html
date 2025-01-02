@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Crypto Volatility and Support/Resistance{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2>Crypto Volatility and Support/Resistance</h2>
+  <table class="table table-striped" id="cryptoTable">
+    <thead>
+      <tr>
+        <th>Symbol</th>
+        <th>1m V</th>
+        <th>cover V</th>
+        <th>Lowest S</th> 
+        <th>Next S</th>
+        <th>Price</th>
+        <th>Next R</th>
+        <th>SR gap</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for crypto in cryptos %}
+      <tr>
+        <td><a href='/cryptos/{{ crypto.symbol }}'>{{ crypto.symbol }}</a></td>
+        <td>{{ crypto.volatility_factor_1m|round(2) }}%</td>
+        <td>{{ crypto.volatility_factor_cover|round(2) }}%</td>
+        <td> {% if crypto.lowest_support_1m < crypto.next_support %} <span style="color: green;">&#10003;</span>
+            {% else %}
+            <span style="color: red;">&#10007;</span>
+            {% endif %}{{ crypto.lowest_support_1m }}</td>
+        <td> {% if crypto.next_support < crypto.current_price %} <span style="color: green;">&#10003;</span>
+            {% else %}
+            <span style="color: red;">&#10007;</span>
+            {% endif %}{{ crypto.next_support }}</td>
+        <td>
+          {% if crypto.current_price < crypto.next_support %} <span style="color: green;">&#10003;</span>
+            {% else %}
+            <span style="color: red;">&#10007;</span>
+            {% endif %}
+            {{ crypto.current_price }}
+        </td>
+        <td> {% if crypto.next_support < crypto.current_price %} <span style="color: green;">&#10003;</span>
+            {% else %}
+            <span style="color: red;">&#10007;</span>
+            {% endif %}{{ crypto.next_resistance }}</td>
+        <td>{{ crypto.sr_gap_pct|round(2) }}%</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+<script>
+  $(document).ready(function () {
+    $('#cryptoTable').DataTable({
+      "pageLength": 100
+    });
+  });
+</script>
+{% endblock %}

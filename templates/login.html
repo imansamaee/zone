@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Login</h2>
+    <form method="POST" action="{{ url_for('auth.login') }}">  {# Use url_for #}
+        <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" id="username" name="username" required>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+</div>
+<script>
+  const form = document.querySelector('form'); // Get the login form
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault(); // Prevent default form submission
+
+    const formData = new FormData(form);
+    const response = await fetch(form.action, { 
+      method: form.method,
+      body: formData
+    });
+
+    const result = await response.text();
+    if (result === 'ok') {
+      // Redirect to the home page on success
+      window.location.href = "{{ url_for('general.index') }}"; 
+    } else {
+      // Show the alert on failure
+      showAlert('danger', result);
+    }
+  });
+
+
+</script>
+{% endblock %}

@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}App Configuration{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2>App Configuration</h2>
+
+
+  <form id="config-form" class="row g-3">
+    <div class="col-md-6">
+      <div class="mb-3">
+        <label for="trading_strategy" class="form-label">Trading Strategy</label>
+        <select class="form-select" id="trading_strategy" name="trading_strategy">
+          {% for strategy in TradingStrategy %}
+          <option value="{{ strategy.name }}" {% if AppConfig.trading_strategy.name==strategy.name %}selected{% endif
+            %}>{{ strategy.value }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="mb-3">
+        <label for="flash_pct" class="form-label">Flash Pct</label>
+        <input type="number" class="form-control" id="flash_pct" name="flash_pct" value="{{ AppConfig.flash_pct }}"
+          step="0.1">
+      </div>
+      <div class="mb-3">
+        <label for="volatility_factor" class="form-label">Volatility Factor</label>
+        <input type="number" class="form-control" id="volatility_factor" name="volatility_factor"
+          value="{{ AppConfig.volatility_factor }}" step="0.1">
+      </div>
+      <div class="mb-3">
+        <label for="stability_factor" class="form-label">Stability Factor</label>
+        <input type="number" class="form-control" id="stability_factor" name="stability_factor"
+          value="{{ AppConfig.stability_factor }}" step="0.1">
+      </div>
+      <div class="mb-3">
+        <label for="kline_limit" class="form-label">KLINE Limit</label>
+        <input type="number" class="form-control" id="kline_limit" name="kline_limit"
+          value="{{ AppConfig.KLINE_LIMIT }}" step="1">
+      </div>
+      <div class="mb-3">
+        <label for="crypto_limit" class="form-label">Crypto Limit</label>
+        <input type="number" class="form-control" id="crypto_limit" name="crypto_limit"
+          value="{% if AppConfig.CRYPTO_LIMIT %}{{ AppConfig.CRYPTO_LIMIT }}{% endif %}" step="1">
+      </div>
+      <div class="mb-3">
+        <label for="order_usdt_amount" class="form-label">Order USDT Amount</label>
+        <input type="number" class="form-control" id="order_usdt_amount" name="order_usdt_amount"
+          value="{{ AppConfig.ORDER_USDT_AMOUNT }}" step="1">
+      </div>
+      <div class="mb-3">
+        <label for="max_usdt_to_place" class="form-label">Max USDT to Place</label>
+        <input type="number" class="form-control" id="max_usdt_to_place" name="max_usdt_to_place"
+          value="{{ AppConfig.MAX_USDT_TO_PLACE }}" step="1">
+      </div>
+      <div class="mb-3">
+        <label for="volatility" class="form-label">Volatility</label>
+        <textarea class="form-control" id="volatility" name="volatility"
+          rows="5">{{ AppConfig.volatility | tojson }}</textarea>
+      </div>
+      <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-input" id="run_bot" name="run_bot" {% if AppConfig.run_bot %}checked{%
+          endif %}>
+        <label class="form-check-label" for="run_bot">Run Bot</label>
+      </div>
+      <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-input" id="convert_assets" name="convert_assets" {% if
+          AppConfig.convert_assets %}checked{% endif %}>
+        <label class="form-check-label" for="convert_assets">Convert Assets</label>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="mb-3">
+        <label for="min_sr_gap_pct" class="form-label">Min SR Gap Pct</label>
+        <input type="number" class="form-control" id="min_sr_gap_pct" name="min_sr_gap_pct"
+          value="{{ AppConfig.min_sr_gap_pct }}" step="0.1">
+      </div>
+      <div class="mb-3">
+        <label for="support_closeness_threshold_pct" class="form-label">Support Closeness Threshold Pct</label>
+        <input type="number" class="form-control" id="support_closeness_threshold_pct"
+          name="support_closeness_threshold_pct" value="{{ AppConfig.support_closeness_threshold_pct }}" step="0.1">
+      </div>
+      <div class="mb-3">
+        <label for="resistance_closeness_threshold_pct" class="form-label">Resistance Closeness Threshold Pct</label>
+        <input type="number" class="form-control" id="resistance_closeness_threshold_pct"
+          name="resistance_closeness_threshold_pct" value="{{ AppConfig.resistance_closeness_threshold_pct }}"
+          step="0.1">
+      </div>
+      <div class="mb-3">
+        <label for="check_buy_order_wait" class="form-label">Check Buy Order Wait</label>
+        <input type="number" class="form-control" id="check_buy_order_wait" name="check_buy_order_wait"
+          value="{{ AppConfig.check_buy_order_wait }}" step="1">
+      </div>
+      <div class="mb-3">
+        <label for="check_sell_order_wait" class="form-label">Check Sell Order Wait</label>
+        <input type="number" class="form-control" id="check_sell_order_wait" name="check_sell_order_wait"
+          value="{{ AppConfig.check_sell_order_wait }}" step="1">
+      </div>
+      <div class="mb-3">
+        <label for="price_updater_interval" class="form-label">Price Updater Interval</label>
+        <input type="number" class="form-control" id="price_updater_interval" name="price_updater_interval"
+          value="{{ AppConfig.price_updater_interval }}" step="1">
+      </div>
+      <div class="mb-3">
+        <label for="check_and_create_orders_interval" class="form-label">Check and Create Orders Interval</label>
+        <input type="number" class="form-control" id="check_and_create_orders_interval"
+          name="check_and_create_orders_interval" value="{{ AppConfig.check_and_create_orders_interval }}" step="1">
+      </div>
+      <div class="mb-3">
+        <label for="monitor_orders_interval" class="form-label">Monitor Orders Interval</label>
+        <input type="number" class="form-control" id="monitor_orders_interval" name="monitor_orders_interval"
+          value="{{ AppConfig.monitor_orders_interval }}" step="1">
+      </div>
+      <div class="mb-3">
+        <label for="updating_klines_interval" class="form-label">Updating Klines Interval</label>
+        <input type="number" class="form-control" id="updating_klines_interval" name="updating_klines_interval"
+          value="{{ AppConfig.updating_klines_interval }}" step="1">
+      </div>
+      <div class="mb-3">
+        <label for="stop_loss_pct" class="form-label">Stop Loss Pct</label>
+        <input type="number" class="form-control" id="stop_loss_pct" name="stop_loss_pct"
+          value="{{ AppConfig.stop_loss_pct }}" step="0.1">
+      </div>
+      <div class="mb-3">
+        <label for="binance_cost_pct" class="form-label">Binance Cost Pct</label>
+        <input type="number" class="form-control" id="binance_cost_pct" name="binance_cost_pct"
+          value="{{ AppConfig.binance_cost_pct }}" step="0.1">
+      </div>
+      <div class="mb-3">
+        <label for="blacklist" class="form-label">Blacklist</label>
+        <textarea class="form-control" id="blacklist" name="blacklist"
+          rows="5">{{ AppConfig.blacklist | tojson }}</textarea>
+      </div>
+    </div>
+
+
+  </form>
+
+  <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+    <button type="submit" form="config-form" class="btn btn-primary me-md-2">Save Changes</button>
+  </div>
+
+</div>
+
+<script>
+  const form = document.getElementById('config-form');
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(form);
+    const jsonData = {};
+    formData.forEach((value, key) => jsonData[key] = value);
+
+    try {
+      const response = await fetch('/update_config', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(jsonData)
+      });
+
+      if (response.ok) {
+        // Configuration updated successfully
+        console.log('Configuration updated!');
+        showAlert('success', 'Configuration updated successfully!');
+      } else {
+        const errorData = await response.json(); // Get error data from response
+        const errorMessage = errorData.detail || 'Error updating configuration!';
+        console.log(errorMessage);
+        showAlert('danger', "Error, check the console!");
+      }
+
+    } catch (error) {
+      console.error('Error updating configuration:', error);
+      // Optionally display an error message to the user
+    }
+  });
+  function showAlert(type, message) {
+  const alertContainer = document.getElementById('alert-container');
+  const alert = `
+    <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+      ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      
+    </div>
+  `;
+  alertContainer.innerHTML = alert;
+
+  setTimeout(() => { 
+    const alertElement = alertContainer.querySelector('.alert');
+    if (alertElement) {
+      bootstrap.Alert.getOrCreateInstance(alertElement).close(); 
+    }
+  }, 3000); 
+}
+
+</script>
+{% endblock %}

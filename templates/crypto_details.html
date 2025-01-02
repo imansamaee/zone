@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Crypto Details - {crypto.symbol}</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+</head>
+<body>
+
+<div class="container">
+  <h2>Crypto Details - {crypto.symbol}</h2>
+
+  <h3>General Information</h3>
+  <table class="table table-striped">
+    <tbody>
+      <tr>
+        <th>Symbol</th>
+        <td>{crypto.symbol}</td>
+      </tr>
+      <tr>
+        <th>Status</th>
+        <td>{crypto.status}</td>
+      </tr>
+      <tr>
+        <th>Base Asset</th>
+        <td>{crypto.base_asset}</td>
+      </tr>
+      <tr>
+        <th>Quote Asset</th>
+        <td>{crypto.quote_asset}</td>
+      </tr>
+      <tr>
+        <th>Minimum Quantity</th>
+        <td>{crypto.minimum_quantity}</td>
+      </tr>
+      <tr>
+        <th>Tick Size</th>
+        <td>{crypto.tick_size}</td>
+      </tr>
+      <tr>
+        <th>Price Precision</th>
+        <td>{crypto.price_precision}</td>
+      </tr>
+      <tr>
+        <th>Is Price Stable</th>
+        <td>{crypto.is_price_stable}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Market Information</h3>
+  <table class="table table-striped">
+    <tbody>
+      <tr>
+        <th>Opening Price</th>
+        <td>{crypto.opening_price}</td>
+      </tr>
+      <tr>
+        <th>High Price</th>
+        <td>{crypto.high_price}</td>
+      </tr>
+      <tr>
+        <th>Low Price</th>
+        <td>{crypto.low_price}</td>
+      </tr>
+      <tr>
+        <th>Current Price</th>
+        <td>{crypto.current_price}</td>
+      </tr>
+      <tr>
+        <th>Base Asset Volume</th>
+        <td>{crypto.base_asset_volume}</td>
+      </tr>
+      <tr>
+        <th>Quote Asset Volume</th>
+        <td>{crypto.quote_asset_volume}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Technical Analysis</h3>
+  <table class="table table-striped">
+    <tbody>
+      <tr>
+        <th>1m Volatility</th>
+        <td>{crypto.volatility_factor_1m:.2f}%</td>
+      </tr>
+      <tr>
+        <th>1h Volatility</th>
+        <td>{crypto.volatility_factor_1h:.2f}%</td>
+      </tr>
+      <tr>
+        <th>Next Support</th>
+        <td>{crypto.next_support_resistance[0]}</td>
+      </tr>
+      <tr>
+        <th>Next Resistance</th>
+        <td>{crypto.next_support_resistance[1]}</td>
+      </tr>
+    </tbody>
+  </table>
+
+
+  <h3>Klines</h3>
+  
+  <h3>Test Results</h3>
+  <pre>{crypto.test_results}</pre>
+
+  <a href="/test_results_html">View All Test Results</a>
+</div>
+
+</body>
+</html>

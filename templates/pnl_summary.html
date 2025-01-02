@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}PNL Summary{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2>PNL Summary</h2>
+
+  <table id="pnl-table" class="table table-striped">
+    <thead>
+      <tr>
+        <th>Order Time</th>
+        <th>Symbol</th>
+        <th>PNL</th>
+        <th>volatility 1m</th>
+        <th>volatility cover</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="2">Overall PNL</td>
+        <td id="overall-pnl"></td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+<script>
+async function loadPNLData() {
+
+  try {
+    const response = await fetch('/order/pnl_data');
+    const pnlData = await response.json();
+
+    let overallPnl = 0;
+    let overallProfit = 0;
+    let overallLoss = 0;
+    const tableBody = document.querySelector('tbody');
+
+    for (const order of pnlData) {
+      const orderTime = order.authorization_time;
+      const symbol = order.symbol;
+      const pnl = order.pnl;
+      const pnlColor = pnl > 0 ? 'green' : (pnl < 0 ? 'red' : 'black');
+
+      overallPnl += pnl;
+
+      if (pnl >= 0) {
+        overallProfit += pnl;
+      } else {
+        overallLoss += pnl;
+      }
+
+      const row = `
+        <tr>
+          <td>${orderTime}</td>
+          <td><a href="/chart/pair_details?file=${order.fileName}">${symbol}</a></td>
+          <td style="color: ${pnlColor}">${pnl.toFixed(2)}</td>
+          <td>${order.volatilityFactor1m}</td>
+          <td>${order.volatilityFactorcover}</td>
+        </tr>
+      `;
+      tableBody.innerHTML += row;
+    }
+
+    // Add overall profit and loss to the table footer
+    const tableFooter = document.querySelector('tfoot');
+    tableFooter.innerHTML = `
+      <tr>
+        <td colspan="2">Overall Profit</td>
+        <td id="overall-profit">${overallProfit.toFixed(2)}</td>
+      </tr>
+      <tr>
+        <td colspan="2">Overall Loss</td>
+        <td id="overall-loss">${overallLoss.toFixed(2)}</td> 
+      </tr>
+      <tr>
+        <td colspan="2">Overall PNL</td>
+        <td id="overall-pnl">${overallPnl.toFixed(2)}</td> 
+      </tr>
+    `;
+
+  // Initialize DataTables for sorting
+  $('#pnl-table').DataTable({
+    "paging": false,
+    "searching": false
+  });
+  
+} catch (error) {
+    console.error('Error loading PNL data:', error);
+  }
+}
+
+loadPNLData();
+</script>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Crypto Details{% endblock %}
+
+{% block content %}
+<script src="/static/js/common.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/stock.js"></script>
+<script src="https://code.highcharts.com/modules/candlestick.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/annotations.js"></script>
+
+
+<h1 class="mt-4">Crypto Details</h1>
+
+<p><strong>Symbol:</strong> {{ crypto.symbol }}</p>
+<p><strong>Base Asset:</strong> {{ crypto.base_asset }}</p>
+<p><strong>Quote Asset:</strong> {{ crypto.quote_asset }}</p>
+<p><strong>Volatility:</strong> {{ crypto.volatility }}</p> 
+<p><strong>Current Price:</strong> {{ crypto.current_price }}</p>
+
+<div id="chart-1m" style="height: 800px;"></div>
+<script>
+  var cryptoInfo = {{ crypto | tojson }};
+  var klines_1m = {{ crypto.klines_1m | tojson }}; 
+  var klines_cover = {{ crypto.klines_cover | tojson }};
+  var zonesCover = {{ crypto.zones_cover | tojson }}; 
+
+  // Convert zonesCover into the desired format
+  var demandZones = zonesCover.demand_zones || [];
+  var supplyZones = zonesCover.supply_zones || [];
+
+  console.log(cryptoInfo);
+
+  // Helper function to map zones to plotBands
+  function mapZonesToPlotBands(zones, color) {
+      return zones.map(zone => ({
+          from: zone.start_price,
+          to: zone.end_price,
+          color: color,
+          label: {
+              text: zone.type === 'demand' ? 'Demand Zone' : 'Supply Zone',
+              style: {
+                  color: '#606060'
+              }
+          }
+      }));
+  }
+
+  // Generate plotBands for demand and supply zones
+  var demandPlotBands = mapZonesToPlotBands(demandZones, 'rgba(68, 213, 170, 0.2)'); // Light green
+  var supplyPlotBands = mapZonesToPlotBands(supplyZones, 'rgba(213, 68, 68, 0.2)'); // Light red
+
+  Highcharts.stockChart('chart-1m', {
+      rangeSelector: {
+          selected: 1
+      },
+      title: {
+          text: '{{ crypto.symbol }} 1 Minute Chart'
+      },
+      series: [{
+          name: '{{ crypto.symbol }}',
+          type: 'candlestick',
+          data: klines_cover, 
+          tooltip: {
+              valueDecimals: 2
+          }
+      }],
+      yAxis: {
+          plotBands: [...demandPlotBands, ...supplyPlotBands] // Combine demand and supply plotBands
+      },
+      annotations: demandZones.concat(supplyZones).map(zone => ({
+    labelOptions: {
+        style: {
+            color: 'black',
+            fontWeight: 'bold',
+            fontSize: '14px'
+        }
+    },
+    shapes: [{
+        type: 'rect',  // Using 'rect' to define the rectangle
+        x: zone.start_time * 1000,  // Starting time in milliseconds
+        y: zone.start_price,        // Starting price
+        width: (zone.end_time - zone.start_time) * 1000, // Time duration in milliseconds
+        height: zone.end_price - zone.start_price,       // Price range
+        fill: zone.type === 'demand' 
+            ? 'rgba(68, 213, 170, 0.2)' // Light green for demand zones
+            : 'rgba(213, 68, 68, 0.2)', // Light red for supply zones
+        stroke: zone.type === 'demand' ? 'green' : 'red', // Border color
+        strokeWidth: 1
+    }]
+}))
+  });
+</script>
+
+  
+
+{% endblock %}
