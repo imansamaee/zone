@@ -53,29 +53,23 @@ class Crypto(BaseModel):
 
     @computed_field
     @property
-    def zones_1m(self) -> Tuple[dict, dict]:
-        """Convert zones to dictionaries for storage in Crypto."""
-        zone_manager = ZoneManager(self.klines_1m, "1m")
-        supply_zones, demand_zones = zone_manager.supply_zones, zone_manager.demand_zones
+    def immediate_demand_zone(self) -> dict:
+        """
+        Computes the immediate demand zone for the cryptocurrency based on its Klines.
 
-        # Use the dict() method from Pydantic models to convert each zone to a dictionary
-        supply_zones_dicts = [zone.dict() for zone in supply_zones]
-        demand_zones_dicts = [zone.dict() for zone in demand_zones]
+        Returns:
+            dict: Information about the immediate demand zone or None if not found.
+        """
+        if not self.klines_cover:
+            return None  # No Klines to process
 
-        return supply_zones_dicts, demand_zones_dicts
+        # Initialize ZoneManager
+        zone_manager = ZoneManager(self.klines_cover)
 
-    @computed_field
-    @property
-    def zones_cover(self) -> Tuple[dict, dict]:
-        """Convert cover zones to dictionaries for storage in Crypto."""
-        zone_manager = ZoneManager(self.klines_cover, "cover")
-        supply_zones, demand_zones = zone_manager.supply_zones, zone_manager.demand_zones
-
-        # Use the dict() method from Pydantic models to convert each zone to a dictionary
-        supply_zones_dicts = [zone.dict() for zone in supply_zones]
-        demand_zones_dicts = [zone.dict() for zone in demand_zones]
-
-        return supply_zones_dicts, demand_zones_dicts
+        # Get the immediate demand zone
+        if zone_manager.immediate_demand_zone:
+            return  zone_manager.immediate_demand_zone
+        return None  # No valid demand zone found
 
     @computed_field
     @property

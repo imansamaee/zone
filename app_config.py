@@ -43,7 +43,7 @@ class AppConfig:
     volatility_factor: float = 2.0
     stability_factor: float = 1.0
     KLINE_LIMIT: int = 200
-    CRYPTO_LIMIT: Optional[int] = 1 if trading_strategy == TradingStrategy.TEST or trading_strategy == TradingStrategy.SUSPEND else None
+    CRYPTO_LIMIT: Optional[int] = None# 20 if trading_strategy == TradingStrategy.TEST or trading_strategy == TradingStrategy.SUSPEND else None
     init_pairs_history :bool = False if trading_strategy == TradingStrategy.TEST or trading_strategy == TradingStrategy.SUSPEND else True
     port: int = 8001
     ORDER_USDT_AMOUNT: int = 10

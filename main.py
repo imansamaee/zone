@@ -74,7 +74,7 @@ async def run_all_tasks():
     await asyncio.gather(*AppConfig.tasks)
 
 
-async def main():
+async def main(run_flask_app = True):
     """
     Main function to initialize and run all tasks.
     Ensures the bot and FastAPI server are started and managed centrally.
@@ -83,7 +83,8 @@ async def main():
 
     try:
         await initialize_bot()
-        await run_app()
+        if run_flask_app:
+            await run_app()
         await run_all_tasks()
     except asyncio.CancelledError:
         logger.info("Shutdown initiated. Cancelling tasks...")
