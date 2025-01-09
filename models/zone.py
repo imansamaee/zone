@@ -2,13 +2,33 @@ from pydantic import BaseModel, Field, computed_field
 from typing import Literal, List
 from datetime import datetime
 
+
 class Zone(BaseModel):
     zone_type: Literal["demand", "supply"]  # Restrict zone type to "demand" or "supply"
     low: float = Field(..., description="Lowest price in the zone")
     high: float = Field(..., description="Highest price in the zone")
     creation_time: datetime = Field(..., description="Timestamp of zone creation")
-    is_fresh: bool = Field(True, description="Whether the zone is fresh (untouched)")
-    candles: List[List] = Field(..., description="List of candlestick data in raw Kline format")
+    candles: List[List] = Field(
+        ..., description="List of candlestick data in raw Kline format"
+    )
+    klines: List[List] = Field(
+        default_factory=list, description="All Klines associated with the zone"
+    )
+
+    @computed_field
+    @property
+    def is_fresh(self) -> bool:
+        """
+        Checks if the zone is fresh (i.e., untouched by price action).
+
+        Returns:
+            bool: True if the zone is fresh, False otherwise.
+        """
+        for kline in self.klines:
+            close_price = kline[4]  # Closing price of the candle
+            if self.low <= close_price <= self.high:
+                return False  # Zone is touched
+        return True  # Zone is fresh
 
     @computed_field
     @property

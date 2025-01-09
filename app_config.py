@@ -10,8 +10,8 @@ from binance.client import Client
 from dotenv import load_dotenv
 from enum import Enum
 import time
-
 from models.bot_info import BotInfo
+
 
 load_dotenv()  # Load environment variables from .env
 
