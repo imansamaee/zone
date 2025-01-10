@@ -28,9 +28,10 @@ class TradingStrategy(Enum):
     WALL_STREET_SHUFFLE = "The Wall Street Shuffle"
     FLASH = "Fast and Reckless"
     SUSPEND = "Halt trading activities"
+    LRP = "LRP Framework"
 
 class AppConfig:
-    trading_strategy: TradingStrategy = TradingStrategy.SUSPEND
+    trading_strategy: TradingStrategy = TradingStrategy.LRP
 
     run_bot: bool = True
     convert_assets: bool = False
@@ -43,7 +44,7 @@ class AppConfig:
     volatility_factor: float = 2.0
     stability_factor: float = 1.0
     KLINE_LIMIT: int = 200
-    CRYPTO_LIMIT: Optional[int] = None# 20 if trading_strategy == TradingStrategy.TEST or trading_strategy == TradingStrategy.SUSPEND else None
+    CRYPTO_LIMIT: Optional[int] = 20 if trading_strategy == TradingStrategy.TEST or trading_strategy == TradingStrategy.SUSPEND else None
     init_pairs_history :bool = False if trading_strategy == TradingStrategy.TEST or trading_strategy == TradingStrategy.SUSPEND else True
     port: int = 8001
     ORDER_USDT_AMOUNT: int = 10

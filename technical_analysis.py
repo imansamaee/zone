@@ -17,6 +17,39 @@ class TechnicalAnalysis:
         close_prices = [kline[4] for kline in klines]  # Extract close prices
         close_prices_series = pd.Series(close_prices)  # Convert to Pandas Series
         return ta.momentum.RSIIndicator(close_prices_series, window=period).rsi()
+    
+    @staticmethod
+    def calculate_macd(klines, short_window=12, long_window=26, signal_window=9):
+        """
+        Calculates MACD and Signal Line for given kline data.
+
+        Args:
+            klines: A list of kline data (any timeframe). Each kline should be a list/tuple with at least the close price.
+            short_window: The short EMA window (default is 12).
+            long_window: The long EMA window (default is 26).
+            signal_window: The signal line EMA window (default is 9).
+
+        Returns:
+            A dictionary containing:
+                - "macd": Pandas Series representing the MACD line.
+                - "signal": Pandas Series representing the Signal line.
+                - "histogram": Pandas Series representing the MACD histogram.
+        """
+        close_prices = [kline[4] for kline in klines]  # Extract close prices
+        close_prices_series = pd.Series(close_prices)  # Convert to Pandas Series
+
+        macd = ta.trend.MACD(
+            close_prices_series, 
+            window_slow=long_window, 
+            window_fast=short_window, 
+            window_sign=signal_window
+        )
+
+        return {
+            "macd": macd.macd(),
+            "signal": macd.macd_signal(),
+            "histogram": macd.macd_diff()
+        }
 
     @staticmethod
     def is_uptrend_cover(klines_cover) -> bool:

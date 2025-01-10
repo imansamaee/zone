@@ -89,11 +89,14 @@ class OrderAuthorization:
         """
 
         nominees = []
-        sorted_cryptos = sorted(
-            self.crypto_data.values(),
-            key=lambda crypto: crypto.last_volume,
-            reverse=True,
-        )
+        if AppConfig.trading_strategy == TradingStrategy.LRP:
+            sorted(
+                self.crypto_data.values(),
+                key=lambda crypto: crypto.last_volume,
+                reverse=True,
+            )
+        else:
+            sorted_cryptos = [c for c in AppConfig.bot.products.working_cryptos.values()]
         for crypto in sorted_cryptos:
             crypto_is_passed = False
             test_functions = [
@@ -127,7 +130,12 @@ class OrderAuthorization:
                 and self.test_active_orders(crypto) == "passed"
             ):
                 crypto_is_passed = True
-
+            if (
+                AppConfig.trading_strategy == TradingStrategy.LRP
+                and self.test_active_orders(crypto) == "passed"
+                and 
+            ):
+                crypto_is_passed = True
             if crypto_is_passed:
                 next_support, next_resistance = crypto.next_support_resistance
                 nominees.append(

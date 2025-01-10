@@ -6,6 +6,10 @@ from app_config import AppConfig
 
 crypto_blueprint = Blueprint("crypto", __name__)
 
+@crypto_blueprint.route("/working", methods=["GET"])
+def get_working_cryptos_route():
+    return AppConfig.bot.products.working_cryptos.items()
+
 @crypto_blueprint.route("/symbol/<string:symbol>")
 def get_crypto_by_symbol(symbol):
     """

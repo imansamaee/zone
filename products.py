@@ -18,9 +18,11 @@ class Products:
         self.markets = self.fetch_markets()  # Fetch market data once
         self.symbols_data = self.fetch_symbols_data()[: AppConfig.CRYPTO_LIMIT]
         self.cryptos = self.initialize_cryptos()
+        self.working_cryptos = None
         self.kline_fetcher = KlineFetcher(self.cryptos)
         self.crypto_tags = self.initialize_crypto_tags()
         self.price_updater = AsyncPriceUpdater(self.cryptos, interval=2)
+        self.klines_initialized = False
         logger.info(
             f"Initialized Products with {len(self.cryptos)} cryptos and {len(self.crypto_tags)} tags."
         )
@@ -103,7 +105,6 @@ class Products:
                     price_filter=price_filter,
                     price_precision=price_precision,
                     limits=limits,
-                    
                 )
                 logger.debug(
                     f"Initialized {product['s']} | Opening Price: {opening_price}, Current Price: {current_price}"
@@ -111,6 +112,34 @@ class Products:
             except Exception as e:
                 logger.error(f"Error initializing crypto {product.get('s')}: {e}")
         return cryptos
+
+    def get_working_cryptos(self):
+        """
+        Retrieves a dictionary of symbols for cryptos that meet the condition of 
+        having a supply zone before an immediate demand zone.
+
+        Returns:
+            dict: A dictionary where the keys are crypto symbols, and the values are Crypto objects.
+        """
+        try:
+            # Filter cryptos based on the condition
+            working_cryptos = {
+                symbol: crypto
+                for symbol, crypto in self.cryptos.items()
+                if crypto.zones.get('supply_zone_before_immediate_demand_zone', False)
+            }
+
+            # Logging the results
+            logger.info(
+                f"Identified {len(working_cryptos)} working cryptos: {list(working_cryptos.keys())}"
+            )
+
+            return working_cryptos  # Return the dictionary of working cryptos
+        except Exception as e:
+            logger.error(f"Error retrieving working cryptos: {e}")
+            return {}  # Return an empty dictionary in case of an error
+
+
 
     def get_market_info(self, symbol):
         """
@@ -146,38 +175,56 @@ class Products:
 
     async def update_cryptos_klines(self):
         """
-        Update the klines for all cryptos every 30 minutes.
+        Update the Klines for all cryptos every 30 minutes by default,
+        or for the top 10 working cryptos every 10 seconds if the strategy is LRP.
         """
-        while not AppConfig().is_shutdown_initiated:  # Use AppConfig() to create an instance
+        await self.update_all_klines()
+        self.working_cryptos = self.get_working_cryptos()
+        
+        while not AppConfig().is_shutdown_initiated:  # Ensure the loop stops on shutdown
             try:
-                #self.kline_fetcher.cryptos.clear()
-                logger.info("Updating Products Klines...")
-                self.kline_fetcher.save_historical_data_concurrently()
-                self.cryptos = self.kline_fetcher.cryptos
+                if AppConfig.trading_strategy == TradingStrategy.LRP:
+                    # Short interval for LRP strategy
+                    await asyncio.sleep(10)
+                    logger.info("Updating Klines for working cryptos under LRP strategy...")
+                    await self.update_all_klines("working")
 
-                for symbol, crypto in self.cryptos.items():
-                    try:
-                        # Assuming klines_cover is a list of klines, each kline being a list itself
-                        last_cover_kline = crypto.klines_cover[-1]  
-                        last_volume = last_cover_kline[5]  # Assuming volume is the 6th element in a kline
-                        crypto.last_volume = last_volume * crypto.current_price
-                    except (IndexError, KeyError) as e:
-                        logger.error(f"Error updating last_volume for {symbol}: {e}")
 
-                
-                  # Clear the dictionary instead of deleting it
-                gc.collect()
+                else:
+                    await asyncio.sleep(AppConfig.updating_klines_interval)
+                    logger.info("Updating Klines for all cryptos...")
+                    await self.update_all_klines()
 
-                logger.info("Products Klines Updated.")
-
+                logger.info("Klines update cycle complete.")
             except Exception as e:
-                logger.error(f"Error updating klines: {e}")
+                logger.error(f"Error updating Klines: {e}")
 
             if AppConfig.trading_strategy == TradingStrategy.FLASH:
                 AppConfig.bot.order_manager.convert_all_assets_to_quote_currency()
 
+    async def update_all_klines(self, cryptos = "all"):
+        if cryptos == "all":
+            self.kline_fetcher.cryptos = self.cryptos
+        elif cryptos == "working":
+            self.kline_fetcher.cryptos = self.working_cryptos 
 
-            await asyncio.sleep(AppConfig.updating_klines_interval)  
+        self.kline_fetcher.save_historical_data_concurrently()
+        if cryptos == "all":
+            self.cryptos = self.kline_fetcher.cryptos
+        elif cryptos == "working":
+            self.working_cryptos = self.kline_fetcher.cryptos
+
+        self.klines_initialized = True
+
+        for symbol, crypto in self.cryptos.items():
+            try:
+               # Assuming klines_cover is a list of klines, each kline being a list itself
+                last_cover_kline = crypto.klines_cover[-1]
+                last_volume = last_cover_kline[5]  # Assuming volume is the 6th element in a kline
+                crypto.last_volume = last_volume * crypto.current_price
+            except (IndexError, KeyError) as e:
+                logger.error(f"Error updating last_volume for {symbol}: {e}")
+
 
     async def start_price_updater(self):
         try:

@@ -51,15 +51,17 @@ class KlineFetcher:
             logger.error(f"Failed to fetch klines for {symbol}: {e}")
             return None
 
-    def save_historical_data_concurrently(self):
+    def save_historical_data_concurrently(self, cryptos = None):
         """
         Fetch historical data for all symbols and intervals concurrently.
         """
+        if not cryptos:
+            cryptos = self.cryptos.values()
         threads = []
         total_tasks = len(self.cryptos.values()) * len(self.intervals)
         completed_tasks = 0
 
-        for crypto in self.cryptos.values():
+        for crypto in cryptos:
             symbol = crypto.symbol
             for interval in self.intervals:
                 thread = threading.Thread(
@@ -74,6 +76,7 @@ class KlineFetcher:
 
         for thread in threads:
             thread.join()
+
 
     def _fetch_and_store_klines(self, symbol, interval):
         """

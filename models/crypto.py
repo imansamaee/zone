@@ -53,23 +53,58 @@ class Crypto(BaseModel):
 
     @computed_field
     @property
-    def immediate_demand_zone(self) -> dict:
+    def zones(self) -> dict:
         """
         Computes the immediate demand zone for the cryptocurrency based on its Klines.
 
         Returns:
             dict: Information about the immediate demand zone or None if not found.
         """
+        zones = {"immediate_demand_zone" : None ,"supply_zone_before_immediate_demand_zone" : None }
         if not self.klines_cover:
-            return None  # No Klines to process
+            return zones  # No Klines to process
 
         # Initialize ZoneManager
         zone_manager = ZoneManager(self.klines_cover)
 
         # Get the immediate demand zone
         if zone_manager.immediate_demand_zone:
-            return  zone_manager.immediate_demand_zone
-        return None  # No valid demand zone found
+            zones['immediate_demand_zone'] = zone_manager.immediate_demand_zone
+        if zone_manager.supply_zone_before_immediate_demand_zone:
+            zones['supply_zone_before_immediate_demand_zone'] = zone_manager.supply_zone_before_immediate_demand_zone
+        return zones
+    
+    @computed_field
+    @property
+    def macd_crossover_1m(self) -> Optional[str]:
+        """
+        Detects MACD crossover for 1-minute kline data.
+
+        Returns:
+            - "bullish" if MACD line crosses above Signal line.
+            - "bearish" if MACD line crosses below Signal line.
+            - None if no crossover is detected.
+        """
+        # Ensure there is enough data to compute MACD
+        if len(self.klines_1m) < 26:  # Minimum data for MACD (26 EMA)
+            return None
+
+        # Calculate MACD and Signal line
+        macd_data = TechnicalAnalysis.calculate_macd(self.klines_1m)
+        macd_line = macd_data["macd"]
+        signal_line = macd_data["signal"]
+
+        # Check if there is enough data for comparison
+        if len(macd_line) < 2 or len(signal_line) < 2:
+            return None
+
+        # Compare current and previous values for crossover
+        if macd_line[-2] < signal_line[-2] and macd_line[-1] > signal_line[-1]:
+            return "bullish"  # Bullish crossover
+        elif macd_line[-2] > signal_line[-2] and macd_line[-1] < signal_line[-1]:
+            return "bearish"  # Bearish crossover
+
+        return None  # No crossover
 
     @computed_field
     @property
